@@ -1,4 +1,3 @@
-
 from pathlib import Path
 import shutil
 import sys
@@ -10,9 +9,10 @@ def handle_media(filename: Path, target_folder: Path):
     target_folder.mkdir(exist_ok=True, parents=True)
     filename.replace(target_folder / normalize(filename.name))
 
+
 def handle_data(filename: Path, target_folder: Path):
-        target_folder.mkdir(exist_ok=True, parents=True)
-        filename.replace(target_folder / normalize(filename.name))
+    target_folder.mkdir(exist_ok=True, parents=True)
+    filename.replace(target_folder / normalize(filename.name))
 
 
 def handle_other(filename: Path, target_folder: Path):
@@ -26,7 +26,7 @@ def handle_archive(filename: Path, target_folder: Path):
     #  Создаем папку куда распаковываем архив
     # Берем суффикс у файла и убираем replace(filename.suffix, '')
     folder_for_file = target_folder / \
-        normalize(filename.name.replace(filename.suffix, ''))
+                      normalize(filename.name.replace(filename.suffix, ''))
     #  создаем папку для архива с именем файла
 
     folder_for_file.mkdir(exist_ok=True, parents=True)
@@ -47,9 +47,18 @@ def handle_folder(folder: Path):
         print(f'Не удалось удалить папку {folder}')
 
 
-def main(folder: Path):
-    parser.scan(folder)
+def main(folder=None):
+    while True:
+        user_command = input('Write your folder address, like this: /user/Desktop/Хлам >>> ')
+        if user_command == 'exit':
+            return 'Exit'
+        if sys.argv[0]:
+            folder_for_scan = Path(sys.argv[0])
+            print(f'Start in folder {folder_for_scan.resolve()}')
+            start(folder_for_scan.resolve())
+            parser.scan(folder)
 
+def start(folder: Path):
     for file in parser.JPEG_IMAGES:
         handle_media(file, folder / 'images' / 'JPEG')
     for file in parser.JPG_IMAGES:
@@ -94,12 +103,3 @@ def main(folder: Path):
     # Выполняем реверс списка для того, чтобы все папки удалить.
     for folder in parser.FOLDERS[::-1]:
         handle_folder(folder)
-
-
-if __name__ == '__main__':
-    if sys.argv[1]:
-        folder_for_scan = Path(sys.argv[1])
-        print(f'Start in folder {folder_for_scan.resolve()}')
-        main(folder_for_scan.resolve())
-
-
