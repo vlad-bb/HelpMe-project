@@ -1,6 +1,8 @@
 from adressbook import main as amain
 
 # main функція проекту
+
+
 def main():
     while True:
         print('Menu:',

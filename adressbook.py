@@ -215,7 +215,9 @@ def helping(*args):
     birthday name -> show how many days to birthday of user;
     user birthday -> show users with birthday in 30 days;
     find -> show users with matches for you request;
-    'exit', 'close', 'goodbye', '.' - enter it's command, if you need close the program"""
+    'exit', 'close', 'good bye', '.' - enter it's command, if you need close the program"""
+
+file_name = 'AddressBook.bin'
 
 
 def reading_db(file_name):
@@ -230,9 +232,6 @@ def reading_db(file_name):
 def writing_db(contacts):
     with open(file_name, "wb") as fh:
         pickle.dump(contacts, fh)
-
-
-file_name = 'AddressBook.bin'
 
 
 # @InputError
