@@ -130,6 +130,9 @@ def command_parser(user_command: str, COMMANDS: dict) -> (str, list):
 
 def main():
     while True:
+        print('Print parse and address your folder',
+              'for MacOS: /Folder/Trash',
+              'for Windows: C:\Folder\Trash', sep='\n')
         user_command = input('Enter you command >>> ')
         command, data = command_parser(user_command, COMMANDS_F)
         print(command(*data), '\n')
