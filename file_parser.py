@@ -1,4 +1,3 @@
-import sys
 from pathlib import Path
 
 JPEG_IMAGES = []
@@ -56,25 +55,19 @@ UNKNOWN = set()
 
 
 def get_extension(filename: str) -> str:
-    # .jpg -> JPG
     return Path(filename).suffix[1:].upper()
 
 
 def scan(folder: Path) -> None:
     for item in folder.iterdir():
-        # If this is a directory add to folders and go to next folder element
         if item.is_dir():
-            # Check if folder is not created by us while excecuting func
             if item.name not in ('archives', 'video', 'audio', 'documents', 'images', 'OTHER'):
                 FOLDERS.append(item)
-                # scan this folder (recursion)
                 scan(item)
-            # o to next element in the scanned folder
             continue
-        # Working with files
-        ext = get_extension(item.name)  # get extension
-        fullname = folder / item.name  # get full path to file
-        if not ext:  # if file has no extension, add it to unknowns
+        ext = get_extension(item.name)
+        fullname = folder / item.name
+        if not ext:
             OTHER.append(fullname)
         else:
             try:
@@ -82,6 +75,5 @@ def scan(folder: Path) -> None:
                 EXTENSIONS.add(ext)
                 container.append(fullname)
             except KeyError:
-                # If extension not in register extension, add it to other
                 UNKNOWN.add(ext)
                 OTHER.append(fullname)

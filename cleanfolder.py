@@ -1,14 +1,6 @@
-from pathlib import Path
 import shutil
 from file_parser import *
 from normalize import normalize
-
-
-def help_me(*args):
-    return """Command format:
-    help or ? - this help;
-    parse folder_name- sorts files in the folder;
-    good bye or close or exit or . - exit the program"""
 
 
 def goodbye(*args):
@@ -34,7 +26,6 @@ def handle_archive(filename: Path, target_folder: Path):
     folder_for_file.mkdir(exist_ok=True, parents=True)
     try:
         shutil.unpack_archive(str(filename.resolve()), str(folder_for_file.resolve()))
-        #     normalize archive files
         for file in folder_for_file.iterdir():
             file.replace(folder_for_file / (normalize(file.name[:-len(file.suffix)]) + file.suffix))
 
@@ -43,7 +34,6 @@ def handle_archive(filename: Path, target_folder: Path):
         folder_for_file.rmdir()
         return None
     filename.unlink()
-    # .resolve gives absolute path
 
 
 def handle_folder(folder: Path):
@@ -111,7 +101,7 @@ def file_parser(*args):
     return f"Files in {args[0]} sorted succesffully"
 
 
-COMMANDS_F = {file_parser: ['parse '], help_me: ['?', 'help'], goodbye: ['good bye', 'close', 'exit', '.']}
+COMMANDS = {file_parser: ['parse '], goodbye: ['good bye', 'close', 'exit', '.']}
 
 
 def unknown_command(*args):
@@ -131,10 +121,10 @@ def command_parser(user_command: str, COMMANDS: dict) -> (str, list):
 def main():
     while True:
         print('Print parse and address your folder',
-              'for MacOS: /Folder/Trash',
-              'for Windows: C:\Folder\Trash', sep='\n')
+              'for MacOS: parse /Folder/Trash',
+              'for Windows: parse C:\Folder\Trash', sep='\n')
         user_command = input('Enter you command >>> ')
-        command, data = command_parser(user_command, COMMANDS_F)
+        command, data = command_parser(user_command, COMMANDS)
         print(command(*data), '\n')
         if command is goodbye:
             break
