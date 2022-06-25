@@ -16,7 +16,6 @@ def main():
                 continue
         elif user_command == '4':
             print('Good bye!')
-            break
 
 
 if __name__ == '__main__':
