@@ -18,7 +18,7 @@ def main():
                 continue
 
         elif user_command == '3':
-            print('CleanFolder manager')
+            print('*'*60, 'CleanFolder manager', '*'*60, sep='\n')
             result = clean_main()
             if result == 'Exit':
                 continue
