@@ -12,7 +12,7 @@ def main():
               '4. Close program', sep='\n')
         user_command = input('Press menu button: >>> ')
         if user_command == '1':
-            print('AddressBook Manager: info -> write "help" or "?"')
+            print('*'*60, 'AddressBook Manager', '*'*60, sep='\n')
             result = amain()
             if result == 'Exit':
                 continue
