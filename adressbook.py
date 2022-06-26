@@ -4,14 +4,16 @@ from datetime import datetime
 from datetime import date
 import shelve
 import pickle
+import phonenumbers
 
 
 class Field:
-    def __init__(self, value) -> None:
+    def __init__(self, value):
         self.value = value
+        self.__value = None
 
-    def __str__(self) -> str:
-        return f'{self.value}'
+    def __repr__(self):
+        return str(self.value)
 
 
 class Name(Field):
@@ -19,26 +21,21 @@ class Name(Field):
 
 
 class Phone(Field):
-    def __init__(self, value) -> None:
-        super().__init__(value)
-        self.__value = None
-        self.value = value
-
     @property
-    def value(self) -> str:
+    def value(self):
         return self.__value
 
     @value.setter
-    def value(self, value) -> None:
-        if value.isdigit():
-            self.__value = value
+    def value(self, value):
+        try:
+            number = phonenumbers.parse(value, "ITU-T")
+            self.__value = phonenumbers.format_number(number, phonenumbers.PhoneNumberFormat.E164)
+        except Exception:
+            print("Please enter again.")
+            raise ValueError
 
 
 class Birthday(Field):
-    def __init__(self, value) -> None:
-        super().__init__(value)
-        self.__value = None
-        self.value = value
 
     @property
     def value(self) -> str:
@@ -50,8 +47,8 @@ class Birthday(Field):
             try:
                 datetime.strptime(value, "%d.%m.%Y")
             except ValueError:
-                raise ValueError("Incorrect data format, should be DD.MM.YYYY")
-        # self.__value = value
+                raise print("Incorrect data format, should be DD.MM.YYYY")
+        self.__value = value
 
 
 class Record:
@@ -145,10 +142,13 @@ def add(contacts, *args):
     else:
         contacts[name.value] = Record(name, [phone], birthday)
         writing_db(contacts)
-        return f'Add user {name} with phone number {phone} successful'
+        if birthday:
+            return f'Add user {name} with phone number {phone}, birthday: {birthday} successful'
+        else:
+            return f'Add user {name} with phone number {phone} successful'
 
 
-@InputError
+# @InputError
 def change(contacts, *args):
     name, old_phone, new_phone = args[0], args[1], args[2]
     contacts[name].edit_phone(Phone(old_phone), Phone(new_phone))
@@ -156,14 +156,14 @@ def change(contacts, *args):
     return f'Change to user {name} phone number from {old_phone} to {new_phone}'
 
 
-@InputError
+# @InputError
 def phone(contacts, *args):
     name = args[0]
     phone = contacts[name]
     return f'{phone}'
 
 
-@InputError
+# @InputError
 def del_phone(contacts, *args):
     name, phone = args[0], args[1]
     contacts[name].del_phone(Phone(phone))
@@ -212,7 +212,7 @@ def helping(*args):
     del name phone -> delete the user's phone number;
     'phone name' - enter it's command, if you need to show the user's phone number;
     'show all' - enter it's command, if you need to view all the data;
-    birthday name -> show how many days to birthday of user;
+    birthday -> show how many days to birthday of user;#!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     user birthday -> show users with birthday in 30 days;
     find -> show users with matches for you request;
     'exit', 'close', 'good bye', '.' - enter it's command, if you need close the program"""
@@ -235,22 +235,6 @@ def writing_db(contacts):
 
 
 # @InputError
-# def search(contacts, *args):
-#     user_list = []
-#     for key, value in contacts.items():
-#         search = re.findall(f"{args}", key)
-#         if search:
-#             user_list.append(key)
-#             user_list.append(contacts[key])
-#         search_str = ", ".join(value)
-#         new_search = re.findall(f"{args}", search_str)
-#         if new_search:
-#             user_list.append(key)
-#             user_list.append(search_str)
-#     return user_list
-
-
-@InputError
 def find(contacts, *args):
     args_str = ''
     for i in args:
@@ -271,7 +255,7 @@ COMMANDS = {greeting: ['hello'],
             add: ['add '],
             change: ['change '],
             phone: ['phone '],
-            helping: ['?', 'help'],
+            helping: ['help', '?'],
             show_all: ['show all'],
             exiting: ['goodbye', 'close', 'exit', '.'],
             del_phone: ['del '],
