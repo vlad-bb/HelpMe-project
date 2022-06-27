@@ -6,11 +6,10 @@ import re
 import phonenumbers
 
 
-
 class Field:
     def __init__(self, value: str) -> None:
         self.__value = None
-        self.value = value.title()
+        self.value = value
 
     def __repr__(self) -> str:
         return f'{self.value}'
@@ -29,7 +28,7 @@ class Name(Field):
 
     @value.setter
     def value(self, value: str):
-        self.__value = value
+        self.__value = value.title()
 
 
 class Phone(Field):
@@ -58,12 +57,9 @@ class Birthday(Field):
             self.__value = None
         else:
             try:
-                self.__value = datetime.datetime.strptime(value, '%Y-%m-%d').date()
+                self.__value = datetime.datetime.strptime(value, '%d.%m.%Y').date()
             except ValueError:
-                try:
-                    self.__value = datetime.datetime.strptime(value, '%d.%m.%Y').date()
-                except ValueError:
-                    print("Enter the date of birth (dd.mm.yyyy")
+                print("Enter the date of birth (dd.mm.yyyy)")
 
 
 class Address(Field):
@@ -85,8 +81,8 @@ class Email(Field):
     def value(self, value: str):
         result = None
         get_email = re.findall(r'\b[a-zA-Z][\w\.]+@[a-zA-Z]+\.[a-zA-Z]{2,}', value)
-        if get_email:
-            result = get_email
+        for i in get_email:
+            result = i
         if result is None:
             raise AttributeError(f" Email is not correct {value}")
         self.__value = result
@@ -161,6 +157,8 @@ class InputError:
             return 'Error! User not found!'
         except ValueError:
             return 'Error! Data is incorrect!'
+        except AttributeError:
+            print("Enter correct the date of birth (dd.mm.yyyy) for this user")
 
 
 def greeting(*args):
@@ -171,22 +169,25 @@ def greeting(*args):
 def add_contact(contacts, *args):
     name = Name(args[0])
     phone = Phone(args[1])
-    if name.value.title() in contacts:
-        if phone in contacts[name.value.title()].phone_list:
-            return f'User {name} already has this phone'
+    if name.value in contacts:
+        if phone in contacts[name.value].phone_list:
+            return f'User {name.value.title()} already has this phone'
         else:
-            contacts[name.value.title()].add_phone(phone)
-            return f'Add phone {phone} to user {name}'
+            contacts[name.value].add_phone(phone)
+            writing_db(contacts)
+            return f'Add phone {phone} to user {name.value.title()}'
 
     else:
-        contacts[name.value.title()] = Record(name, [phone])
-        return f'Add user {name} with phone number {phone}'
+        contacts[name.value] = Record(name, [phone])
+        writing_db(contacts)
+        return f'Add user {name.value.title()} with phone number {phone}'
 
 
 @InputError
 def change_contact(contacts, *args):
     name, old_phone, new_phone = args[0], args[1], args[2]
     contacts[name].edit_phone(Phone(old_phone), Phone(new_phone))
+    writing_db(contacts)
     return f'Change to user {name} phone number from {old_phone} to {new_phone}'
 
 
@@ -201,9 +202,11 @@ def show_phone(contacts, *args):
 def del_phone(contacts, *args):
     name, phone = args[0], args[1]
     contacts[name].del_phone(Phone(phone))
+    writing_db(contacts)
     return f'Delete phone {phone} from user {name}'
 
 
+@InputError
 def show_all(contacts, *args):
     if not contacts:
         return 'Address book is empty'
@@ -218,6 +221,7 @@ def show_all(contacts, *args):
 def add_email(contacts, *args):
     name, email = args[0], args[1]
     contacts[name].email = Email(email)
+    writing_db(contacts)
     return f'Add/modify email {contacts[name].email} to user {name}'
 
 
@@ -226,6 +230,7 @@ def add_address(contacts, *args):
     name, address = args[0], list(args[1:])
     address = " ".join(address)
     contacts[name].address = Address(address)
+    writing_db(contacts)
     return f'Add/modify address {address.title()} to user {name}'
 
 
@@ -233,6 +238,7 @@ def add_address(contacts, *args):
 def add_birthday(contacts, *args):
     name, birthday = args[0], args[1]
     contacts[name].birthday = Birthday(birthday)
+    writing_db(contacts)
     return f'Add/modify birthday {contacts[name].birthday} to user {name}'
 
 
@@ -244,9 +250,11 @@ def days_to_user_birthday(contacts, *args):
     return f'{contacts[name].days_to_birthday(contacts[name].birthday)} days to user {name} birthday'
 
 
+@InputError
 def show_birthday_30_days(contacts, *args):
     def func_days(record):
         return record.birthday.value is not None and record.days_to_birthday(record.birthday) <= days
+
     days = 30
     result = f'List of users with birthday in {days} days:\n'
     print_list = contacts.iterator(func_days)
@@ -263,8 +271,7 @@ def exiting(contacts, *args):
 def find(contacts, *args):
     def func_sub(record):
         return substring.lower() in record.name.value.lower() or \
-               any(substring in phone.value for phone in record.phone_list) or \
-               (record.birthday.value is not None and substring in record.birthday.value.strftime('%d.%m.%Y'))
+               any(substring in phone.value for phone in record.phone_list)
 
     substring = args[0]
     result = f'List of users with \'{substring.lower()}\' in data:\n'
@@ -280,15 +287,19 @@ def del_user(contacts, *args):
     yes_no = input(f'Are you sure you want to delete the user {name}? (y/n) ')
     if yes_no == 'y':
         del contacts[name]
+        writing_db(contacts)
         return f'Delete user {name}'
+
     else:
         return 'User not deleted'
 
 
+@InputError
 def clear_all(contacts, *args):
     yes_no = input('Are you sure you want to delete all users? (y/n) ')
     if yes_no == 'y':
         contacts.clear()
+        writing_db(contacts)
         return 'Address book is empty'
     else:
         return 'Removal canceled'
@@ -339,7 +350,7 @@ def writing_db(contacts):
 
 
 COMMANDS = {greeting: ['hello'], add_contact: ['add '], change_contact: ['change '], info: ['help', '?'],
-            show_all: {'show all'}, exiting: ['good bye', 'close', 'exit', '.'], del_phone: ['del '],
+            show_all: ['show all'], exiting: ['good bye', 'close', 'exit', '.'], del_phone: ['del '],
             add_birthday: ['birthday'], days_to_user_birthday: ['days to birthday '],
             show_birthday_30_days: ['users birthday'], show_phone: ['show '], find: ['find'],
             del_user: ['delete '], clear_all: ['clear'], add_email: ['email '], add_address: ['address']}
