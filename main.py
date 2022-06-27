@@ -1,5 +1,6 @@
 from adressbook import main as amain
 from cleanfolder import main as clean_main
+from notebook import main as note_book
 
 
 # main функція проекту
@@ -14,6 +15,12 @@ def main():
         if user_command == '1':
             print('AddressBook Manager: info -> write "help" or "?"')
             result = amain()
+            if result == 'Exit':
+                continue
+
+        elif user_command == '2':
+            print('*' * 60, 'NoteBook Manager: ', '*' * 60, sep='\n')
+            result = note_book()
             if result == 'Exit':
                 continue
 
