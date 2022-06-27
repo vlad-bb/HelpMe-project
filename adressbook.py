@@ -6,10 +6,14 @@ import re
 import phonenumbers
 
 
+
 class Field:
     def __init__(self, value: str) -> None:
         self.__value = None
-        self.value = value
+        self.value = value.title()
+
+    def __repr__(self) -> str:
+        return f'{self.value}'
 
     def __str__(self) -> str:
         return f'{self.value}'
@@ -44,12 +48,6 @@ class Phone(Field):
 
 
 class Birthday(Field):
-    def __str__(self):
-        if self.value is None:
-            return 'Unknown'
-        else:
-            return f'{self.value:%d %b %Y}'
-
     @property
     def value(self):
         return self.__value
@@ -103,11 +101,12 @@ class Record:
         self.email = email
 
     def __str__(self) -> str:
-        return f' Contact {self.name.value:20}\n' \
+        return f' Contact: {self.name.value.title():20}\n' \
                f' Phones: {", ".join([phone.value for phone in self.phone_list])}\n' \
                f' Birthday {self.birthday}\n' \
                f' Email: {self.email}\n' \
-               f' Address: {self.address}'
+               f' Address: {self.address}\n' \
+               f'**************************************************'
 
     def add_phone(self, phone: Phone) -> None:
         self.phone_list.append(phone)
@@ -119,7 +118,7 @@ class Record:
         self.phone_list.remove(phone)
         self.phone_list.append(new_phone)
 
-    def days_to_birthday(birthday: Birthday):
+    def days_to_birthday(self, birthday: Birthday):
         if birthday.value is None:
             return None
         this_day = date.today()
@@ -172,15 +171,15 @@ def greeting(*args):
 def add_contact(contacts, *args):
     name = Name(args[0])
     phone = Phone(args[1])
-    if name.value in contacts:
-        if phone in contacts[name.value].phone_list:
+    if name.value.title() in contacts:
+        if phone in contacts[name.value.title()].phone_list:
             return f'User {name} already has this phone'
         else:
-            contacts[name.value].add_phone(phone)
+            contacts[name.value.title()].add_phone(phone)
             return f'Add phone {phone} to user {name}'
 
     else:
-        contacts[name.value] = Record(name, [phone])
+        contacts[name.value.title()] = Record(name, [phone])
         return f'Add user {name} with phone number {phone}'
 
 
@@ -224,18 +223,10 @@ def add_email(contacts, *args):
 
 @InputError
 def add_address(contacts, *args):
-    if len(args) > 2:
-        name, address = args[0], args[1] + " " + args[2]
-        contacts[name].address = Address(address)
-        return f'Add/modify address {contacts[name].address} to user {name}'
-    elif len(args) > 3:
-        name, address = args[0], args[1] + " " + args[2] + " " + args[3]
-        contacts[name].address = Address(address)
-        return f'Add/modify address {contacts[name].address} to user {name}'
-    elif len(args) > 4:
-        name, address = args[0], args[1] + " " + args[2] + " " + args[3] + " " + args[4]
-        contacts[name].address = Address(address)
-        return f'Add/modify address {contacts[name].address} to user {name}'
+    name, address = args[0], list(args[1:])
+    address = " ".join(address)
+    contacts[name].address = Address(address)
+    return f'Add/modify address {address.title()} to user {name}'
 
 
 @InputError
@@ -286,8 +277,8 @@ def find(contacts, *args):
 @InputError
 def del_user(contacts, *args):
     name = args[0]
-    yes_no = input(f'Are you sure you want to delete the user {name}? (Y/n) ')
-    if yes_no == 'Y':
+    yes_no = input(f'Are you sure you want to delete the user {name}? (y/n) ')
+    if yes_no == 'y':
         del contacts[name]
         return f'Delete user {name}'
     else:
@@ -295,8 +286,8 @@ def del_user(contacts, *args):
 
 
 def clear_all(contacts, *args):
-    yes_no = input('Are you sure you want to delete all users? (Y/n) ')
-    if yes_no == 'Y':
+    yes_no = input('Are you sure you want to delete all users? (y/n) ')
+    if yes_no == 'y':
         contacts.clear()
         return 'Address book is empty'
     else:
