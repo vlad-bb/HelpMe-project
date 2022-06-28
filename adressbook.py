@@ -28,7 +28,7 @@ class Name(Field):
 
     @value.setter
     def value(self, value: str):
-        self.__value = value.title()
+        self.__value = value
 
 
 class Phone(Field):
@@ -47,6 +47,12 @@ class Phone(Field):
 
 
 class Birthday(Field):
+    def __str__(self):
+        if self.value is None:
+            return 'Unknown'
+        else:
+            return f'{self.value:%d %b %Y}'
+
     @property
     def value(self):
         return self.__value
@@ -69,7 +75,7 @@ class Address(Field):
 
     @value.setter
     def value(self, value: str):
-        self.__value = value.title()
+        self.__value = value
 
 
 class Email(Field):
@@ -101,8 +107,8 @@ class Record:
                f' Phones:   {", ".join([phone.value for phone in self.phone_list])}\n' \
                f' Birthday: {self.birthday}\n' \
                f' Email:    {self.email}\n' \
-               f' Address:  {self.address}\n' \
-               f' {"*" * 49}'
+               f' Address:  {self.address}'
+
 
     def add_phone(self, phone: Phone) -> None:
         self.phone_list.append(phone)
@@ -136,7 +142,7 @@ class AddressBook(UserDict):
         for record in self.data.values():
             if func is None or func(record):
                 print_block += str(record) + '\n'
-                if index <= 1:
+                if index < 1:
                     index += 1
                 else:
                     yield print_block
@@ -158,7 +164,7 @@ class InputError:
         except ValueError:
             return 'Error! Data is incorrect!'
         except AttributeError:
-            print("Enter correct the date of birth (dd.mm.yyyy) for this user")
+            return "Enter correct the date of birth (dd.mm.yyyy) for this user"
 
 
 def greeting(*args):
@@ -252,17 +258,15 @@ def days_to_user_birthday(contacts, *args):
 
 @InputError
 def show_birthday_30_days(contacts, *args):
-    days = 30
-
     def func_days(record):
         return record.birthday.value is not None and record.days_to_birthday(record.birthday) <= days
 
+    days = int(args[0])
     result = f'List of users with birthday in {days} days:\n'
     print_list = contacts.iterator(func_days)
     for item in print_list:
         result += f'{item}'
     return result
-
 
 
 def exiting(contacts, *args):
@@ -330,7 +334,7 @@ def info(*args):
     "show all"       --> Show all users info
     "find" sub       --> Show all users info  with sub in name, phones or birthday
     "days to birthday" name --> Show how many days to user birthday
-    "users birthday" --> Show users with birthday in 30 days
+    "users birthday N" --> Show users with birthday in N days
     """
 
 
