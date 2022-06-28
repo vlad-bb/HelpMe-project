@@ -17,23 +17,28 @@ def handle_other(filename: Path, target_folder: Path):
         target_folder.mkdir(exist_ok=True, parents=True)
         filename.replace(target_folder / (normalize(filename.name[:-len(filename.suffix)]) + filename.suffix))
     except IsADirectoryError:
-        return 'Unknown file'
+        return 'IsADirectoryError'
+    except FileNotFoundError:
+        return 'FileNotFoundError'
+    except PermissionError:
+        return 'PermissionError'
 
 
 def handle_archive(filename: Path, target_folder: Path):
     target_folder.mkdir(exist_ok=True, parents=True)
-    folder_for_file = target_folder / normalize(filename.name.replace(filename.suffix, ''))
-    folder_for_file.mkdir(exist_ok=True, parents=True)
-    try:
-        shutil.unpack_archive(str(filename.resolve()), str(folder_for_file.resolve()))
-        for file in folder_for_file.iterdir():
-            file.replace(folder_for_file / (normalize(file.name[:-len(file.suffix)]) + file.suffix))
+    filename.replace(target_folder / (normalize(filename.name[:-len(filename.suffix)]) + filename.suffix))
 
-    except shutil.ReadError:
-        print(f'Not an archive {filename}!')
-        folder_for_file.rmdir()
-        return None
-    filename.unlink()
+
+def handle_programs(filename: Path, target_folder: Path):
+    try:
+        target_folder.mkdir(exist_ok=True, parents=True)
+        filename.replace(target_folder / (normalize(filename.name[:-len(filename.suffix)]) + filename.suffix))
+    except IsADirectoryError:
+        return 'IsADirectoryError'
+    except FileNotFoundError:
+        return 'FileNotFoundError'
+    except PermissionError:
+        return 'PermissionError'
 
 
 def handle_folder(folder: Path):
@@ -62,6 +67,8 @@ def file_parser(*args):
         handle_media(file, Path(args[0] + '/' + 'images' + '/' + 'PNG'))
     for file in SVG_IMAGES:
         handle_media(file, Path(args[0] + '/' + 'images' + '/' + 'SVG'))
+    for file in GIF_IMAGES:
+        handle_media(file, Path(args[0] + '/' + 'images' + '/' + 'GIF'))
     for file in MP3_AUDIO:
         handle_media(file, Path(args[0] + '/' + 'audio' + '/' + 'MP3'))
     for file in OGG_AUDIO:
@@ -88,21 +95,33 @@ def file_parser(*args):
         handle_media(file, Path(args[0] + '/' + 'document' + '/' + 'PDF'))
     for file in XLSX_DOCUMENT:
         handle_media(file, Path(args[0] + '/' + 'document' + '/' + 'XLSX'))
+    for file in XLS_DOCUMENT:
+        handle_media(file, Path(args[0] + '/' + 'document' + '/' + 'XLS'))
+    for file in CSV_DOCUMENT:
+        handle_media(file, Path(args[0] + '/' + 'document' + '/' + 'CSV'))
     for file in PPTX_DOCUMENT:
         handle_media(file, Path(args[0] + '/' + 'document' + '/' + 'PPTX'))
     for file in OTHER:
         handle_other(file, Path(args[0] + '/' + 'other'))
-
-    for file in ARCHIVES:
-        handle_archive(file, Path(args[0] + '/' + 'archives'))
-
+    for file in OTHER:
+        handle_programs(file, Path(args[0] + '/' + 'programs' + '/' + 'APP'))
+    for file in ZIP_ARCHIVES:
+        handle_archive(file, Path(args[0] + '/' + 'archives' + '/' + 'ZIP'))
+    for file in GZ_ARCHIVES:
+        handle_archive(file, Path(args[0] + '/' + 'archives' + '/' + 'GZ'))
+    for file in TAR_ARCHIVES:
+        handle_archive(file, Path(args[0] + '/' + 'archives' + '/' + 'TAR'))
+    for file in RAR_ARCHIVES:
+        handle_archive(file, Path(args[0] + '/' + 'archives' + '/' + 'RAR'))
+    for file in ARJ_ARCHIVES:
+        handle_archive(file, Path(args[0] + '/' + 'archives' + '/' + 'ARJ'))
     for folder in FOLDERS[::-1]:
         handle_folder(folder)
 
     return f'{star}''\n'f"Files in {args[0]} sorted succesffully"'\n'f'{star}'
 
 
-COMMANDS = {file_parser: ['clean'], goodbye: ['good bye', 'close', 'exit', '.']}
+COMMANDS = {file_parser: ['clean', 'clear'], goodbye: ['good bye', 'close', 'exit', '.']}
 
 
 def unknown_command(*args):
@@ -130,12 +149,11 @@ def main():
         print('Do you have some folder for clean?')
         var = input('Press: y/n >>> ')
         if var == 'y':
-            print('*'*60)
+            print('*' * 60)
             continue
         elif var == 'n':
             break
         elif command is goodbye:
             break
-
 
 
