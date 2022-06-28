@@ -28,7 +28,7 @@ class Name(Field):
 
     @value.setter
     def value(self, value: str):
-        self.__value = value
+        self.__value = value.title()
 
 
 class Phone(Field):
@@ -75,7 +75,7 @@ class Address(Field):
 
     @value.setter
     def value(self, value: str):
-        self.__value = value
+        self.__value = value.title()
 
 
 class Email(Field):
