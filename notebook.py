@@ -122,9 +122,9 @@ class Record:
             for k, v in i.items():
                 if k == 'note':
                     v_note = v
-                return f'Title: {self.title}\n' \
-                       f'Note: {v_note}\n' \
-                       f'Tag: {self.tag}\n'
+                return '{:<6} :'.format('Title') + f' {self.title}\n' \
+                       '{:<6} :'.format('Note') + f' {v_note}\n' \
+                       '{:<6} :'.format('Tag') + f' {self.tag}\n'
 
 
 class NoteBook(UserDict):
