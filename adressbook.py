@@ -42,7 +42,7 @@ class Phone(Field):
             number = phonenumbers.parse(value, "ITU-T")
             self.__value = phonenumbers.format_number(number, phonenumbers.PhoneNumberFormat.E164)
         except Exception:
-            print("Enter correct number, as +380987654321")
+            print("Enter correct number, for example +380987654321")
             raise ValueError
 
 
@@ -69,7 +69,7 @@ class Address(Field):
 
     @value.setter
     def value(self, value: str):
-        self.__value = value
+        self.__value = value.title()
 
 
 class Email(Field):
@@ -97,12 +97,12 @@ class Record:
         self.email = email
 
     def __str__(self) -> str:
-        return f' Contact: {self.name.value.title():20}\n' \
-               f' Phones: {", ".join([phone.value for phone in self.phone_list])}\n' \
-               f' Birthday {self.birthday}\n' \
-               f' Email: {self.email}\n' \
-               f' Address: {self.address}\n' \
-               f'**************************************************'
+        return f' Contact:  {self.name.value.title():20}\n' \
+               f' Phones:   {", ".join([phone.value for phone in self.phone_list])}\n' \
+               f' Birthday: {self.birthday}\n' \
+               f' Email:    {self.email}\n' \
+               f' Address:  {self.address}\n' \
+               f' {"*" * 49}'
 
     def add_phone(self, phone: Phone) -> None:
         self.phone_list.append(phone)
@@ -152,7 +152,7 @@ class InputError:
         try:
             return self.func(contacts, *args)
         except IndexError:
-            return 'Error! Print name and phone!'
+            return 'Error! Print correct data!'
         except KeyError:
             return 'Error! User not found!'
         except ValueError:
@@ -252,15 +252,17 @@ def days_to_user_birthday(contacts, *args):
 
 @InputError
 def show_birthday_30_days(contacts, *args):
+    days = 30
+
     def func_days(record):
         return record.birthday.value is not None and record.days_to_birthday(record.birthday) <= days
 
-    days = 30
     result = f'List of users with birthday in {days} days:\n'
     print_list = contacts.iterator(func_days)
     for item in print_list:
         result += f'{item}'
     return result
+
 
 
 def exiting(contacts, *args):
@@ -307,25 +309,29 @@ def clear_all(contacts, *args):
 
 def info(*args):
     return """
-    ********** Service command **********
-    help or ? --> Commands list
-    close or exit or . --> Exit from AddressBook
-    ********** Add/edit command **********
-    add name phone  --> Add user to AddressBook
-    change name old_phone new_phone --> Change the user's phone number
-    birthday name birthday --> Add/edit user birthday
-    email name email --> Add/edit user email
-    address name address --> Add/edit user address
-    ********** Delete command **********
-    del name phone - Delete phone number
-    delete name - Delete user
-    clear - Delete all users
-    ********** Info command **********
-    show name --> show user info
-    show all --> show all users info
-    find sub --> show all users info  with sub in name, phones or birthday
-    days to birthday name --> show how many days to user birthday
-    users birthday -> show users with birthday in 30 days"""
+    *********** Service command ***********
+    "help", "?"          --> Commands list
+    "close", "exit", "." --> Exit from AddressBook
+    
+    *********** Add/edit command **********
+    "add" name phone         --> Add user to AddressBook
+    "change" name old_phone new_phone --> Change the user's phone number
+    "birthday" name birthday --> Add/edit user birthday
+    "email" name email       --> Add/edit user email
+    "address" name address   --> Add/edit user address
+    
+    *********** Delete command ***********
+    "del" name phone --> Delete phone number
+    "delete" name    --> Delete user
+    "clear"          --> Delete all users
+    
+    *********** Info command *************
+    "show" name      --> Show user info
+    "show all"       --> Show all users info
+    "find" sub       --> Show all users info  with sub in name, phones or birthday
+    "days to birthday" name --> Show how many days to user birthday
+    "users birthday" --> Show users with birthday in 30 days
+    """
 
 
 def unknown_command(*args):
@@ -349,11 +355,22 @@ def writing_db(contacts):
         pickle.dump(contacts, fh)
 
 
-COMMANDS = {greeting: ['hello'], add_contact: ['add '], change_contact: ['change '], info: ['help', '?'],
-            show_all: ['show all'], exiting: ['good bye', 'close', 'exit', '.'], del_phone: ['del '],
-            add_birthday: ['birthday'], days_to_user_birthday: ['days to birthday '],
-            show_birthday_30_days: ['users birthday'], show_phone: ['show '], find: ['find'],
-            del_user: ['delete '], clear_all: ['clear'], add_email: ['email '], add_address: ['address']}
+COMMANDS = {greeting: ['hello'],
+            add_contact: ['add '],
+            change_contact: ['change '],
+            info: ['help', '?'],
+            show_all: ['show all'],
+            exiting: ['good bye', 'close', 'exit', '.'],
+            del_phone: ['del '],
+            add_birthday: ['birthday'],
+            days_to_user_birthday: ['days to birthday '],
+            show_birthday_30_days: ['users birthday'],
+            show_phone: ['show '],
+            find: ['find'],
+            del_user: ['delete '],
+            clear_all: ['clear'],
+            add_email: ['email '],
+            add_address: ['address']}
 
 
 def command_parser(user_command: str) -> (str, list):
