@@ -108,8 +108,8 @@ class Record:
             all_tags.append(str(i))
 
         if tag_value in all_tags:
-            print('-'*50, "The note you are looking for looks like:", sep='\n')
-            print(self.note[0]["note"], '-'*50, sep='\n')
+            print('-' * 50, "The note you are looking for looks like:", sep='\n')
+            print(self.note[0]["note"], '-' * 50, sep='\n')
             return self.note[0]["note"]
 
     def delete_note(self, tag_value):
@@ -228,6 +228,26 @@ def tag(input_nb):
         return f"No note with a title '{input_title}' was found"
 
 
+# @InputError
+# def find_records(input_nb):
+#     output_nb = []
+#     articles_dict_with_key = []
+#     count_match = 0
+#     letter_case = input("Give a key word to find a match in the notes: ")
+#     for tup in list(input_nb.items()):
+#         output_nb.append(dict([tup]))
+#         nb_dict = dict([tup])
+#         for key, value in nb_dict.items():
+#             words_in_dict = [key.lower(), value.note[0]["note"].lower()]
+#             for i in value.note[0]["tag"]:
+#                 words_in_dict.append(str(i))
+#
+#             if any(letter_case.lower() in s for s in words_in_dict):
+#                 articles_dict_with_key.append(tup)
+#                 count_match += 1
+#     print(f"The given key words '{letter_case}' were found in {count_match} note books")
+#     print(f"The matches are : {articles_dict_with_key}")
+
 @InputError
 def find_records(input_nb):
     output_nb = []
@@ -245,8 +265,13 @@ def find_records(input_nb):
             if any(letter_case.lower() in s for s in words_in_dict):
                 articles_dict_with_key.append(tup)
                 count_match += 1
-    print(f"The given key words '{letter_case}' were found in {count_match} note books")
-    print(f"The matches are : {articles_dict_with_key}")
+    if count_match == 0:
+        result = f'Matches not found'
+    else:
+        result = f"The given key words '{letter_case}' were found in {count_match} note books\n"
+    for i in articles_dict_with_key:
+        result += f'{i[1]}\n'
+    return result
 
 
 @InputError
@@ -287,14 +312,12 @@ def edit_note(input_nb):
         input_note = input("What is a new note: ")
         for key, value in input_nb.items():
             if key == input_title:
-                print(f"Note: '{value.note[0]['note']}' is changed to ")
+                old_note = value.note[0]['note']
                 value.note[0]['note'] = input_note
-                print(f"'{value.note[0]['note']}'.")
                 save_nb(input_nb)
+                return f"Note: '{old_note}' is changed to: '{value.note[0]['note']}'."
     else:
-        print(f"No note with a title '{input_title}' was found")
-
-    save_nb(input_nb)
+        return f"No note with a title '{input_title}' was found"
 
 
 @InputError
