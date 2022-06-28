@@ -1,6 +1,5 @@
 from collections import UserDict
 import pickle
-import re
 
 
 class Field:
@@ -99,7 +98,7 @@ class Record:
 
     def add_tag(self, new_tag):
         if new_tag in self.note[0]["tag"]:
-            print(f"The tag: {new_tag} is already used")
+            print(f'The tag: "{new_tag}" is already used')
         else:
             self.note[0]["tag"].append(new_tag)
 
@@ -116,7 +115,17 @@ class Record:
     def delete_note(self, tag_value):
         if tag_value in self.note[0]["tag"]:
             print(f"The note with a tag {tag_value} will be deleted from the notebook")
-            self.phone.remove(phone_number_to_delete)
+            # self.phone.remove(phone_number_to_delete)
+
+    def __str__(self) -> str:
+        v_note = ''
+        for i in self.note:
+            for k, v in i.items():
+                if k == 'note':
+                    v_note = v
+                return f'Title: {self.title}\n' \
+                       f'Note: {v_note}\n' \
+                       f'Tag: {self.tag}\n'
 
 
 class NoteBook(UserDict):
@@ -126,6 +135,37 @@ class NoteBook(UserDict):
 
     def delete_record(self, record):
         del self.data[record.title]
+
+    def iterator(self, func=None):
+        index, print_block = 1, '-' * 50 + '\n'
+        for record in self.data.values():
+            if func is None or func(record):
+                print_block += str(record) + '\n'
+                if index < 1:
+                    index += 1
+                else:
+                    yield print_block
+                    index, print_block = 1, '-' * 50 + '\n'
+        yield print_block
+
+
+class InputError:
+    def __init__(self, func) -> None:
+        self.func = func
+
+    def __call__(self, input_nb):
+        try:
+            return self.func(input_nb)
+        except IndexError:
+            return 'Error! Print correct data!'
+        except KeyError:
+            return 'Error! User not found!'
+        except ValueError:
+            return 'Error! Data is incorrect!'
+        except AttributeError:
+            return "AttributeError"
+        except TypeError:
+            return 'Error! Give me only 1 command'
 
 
 # "****************************************"
@@ -150,24 +190,19 @@ def load_nb(file_name):
         return unpacked
 
 
-# nb = NoteBook()
-# input_nb = load_nb(file_name)
-
-
 # "****************************************"
 # "******** functional commands  **********"
 # "****************************************"
 
-
+@InputError
 def add(input_nb):
     print("You are going to create a new record in your note book.")
-    input_title = input("Please add the title of your note:")
+    input_title = input("Please add the title of your note: ")
     while input_title == "":
         print("You must give a note title, other way  you cannot create a note record!")
-        input_title = input("Please add the title of your note:")
-
-    input_note = input("What is your note:")
-    input_tag = input("Specify a tag of your note:")
+        input_title = input("Please add the title of your note: ")
+    input_note = input("What is your note: ")
+    input_tag = input("Specify a tag of your note: ")
     if input_note and input_tag:
         title = Title(input_title)
         input_record = Record(str(title), Note(input_note), Tag(input_tag))
@@ -175,24 +210,26 @@ def add(input_nb):
         input_record = Record(Title(input_title), Note(input_note))
     else:
         input_record = Record(Title(input_title))
-
     input_nb.add_record(input_record)
     save_nb(input_nb)
+    return f'The Note add successfully'
 
 
+@InputError
 def tag(input_nb):
     all_nb_titles = list(input_nb.keys())
     print(f"Here is all titles in your notebook:\n{all_nb_titles}")
-    input_title = input("Specify the title of the note, where you want to add a new tag:")
+    input_title = input("Specify the title of the note, where you want to add a new tag: ")
     if input_title in all_nb_titles:
-        input_tag = input("Which tag do you want to add:")
+        input_tag = input("Which tag do you want to add: ")
         input_nb[input_title].add_tag(input_tag)
+        save_nb(input_nb)
+        return f'The tag: "{input_tag}" add successfully'
     else:
-        print(f"No note with a title '{input_title}' was found")
-
-    save_nb(input_nb)
+        return f"No note with a title '{input_title}' was found"
 
 
+@InputError
 def find_records(input_nb):
     output_nb = []
     articles_dict_with_key = []
@@ -213,6 +250,7 @@ def find_records(input_nb):
     print(f"The matches are : {articles_dict_with_key}")
 
 
+@InputError
 def find_note_by_tag(input_nb):
     print("List of all tags:")
     for rec, value in input_nb.items():
@@ -227,6 +265,7 @@ def find_note_by_tag(input_nb):
         print(f"Cannot find a note using the tag: '{input_tag}'")
 
 
+@InputError
 def delete_note(input_nb):
     all_nb_titles = list(input_nb.keys())
     print(f"Here is all titles in your notebook:\n{all_nb_titles}")
@@ -239,6 +278,7 @@ def delete_note(input_nb):
         print(f"No note with a title '{input_title}' was found")
 
 
+@InputError
 def edit_note(input_nb):
     all_nb_titles = list(input_nb.keys())
     print(f"Here is all titles in your notebook:\n{all_nb_titles}")
@@ -257,14 +297,25 @@ def edit_note(input_nb):
     save_nb(input_nb)
 
 
-def show_all(input_nb, *args):
-    if not input_nb:
-        return 'Note book is empty'
+# @InputError
+# def show_all(input_nb):
+#     if not input_nb:
+#         return 'Note book is empty'
+#
+#     print('{:<20} : {:<15} : {:<15}'.format("Title", 'Note', 'Tags'))
+#     print("-------------------------------------------------")
+#     for rec, value in input_nb.items():
+#         print('{:<20}  {:<15}  {:<15}'.format(rec, value.note[0]["note"], str(value.note[0]["tag"])))
 
-    print('{:<20} : {:<15} : {:<15}'.format("Title", 'Note', 'Tags'))
-    print("-------------------------------------------------")
-    for rec, value in input_nb.items():
-        print('{:<20}  {:<15}  {:<15}'.format(rec, value.note[0]["note"], str(value.note[0]["tag"])))
+@InputError
+def show_all(input_nb):
+    if not input_nb:
+        return 'NoteBook is empty'
+    result = 'List of all notes:\n'
+    print_list = input_nb.iterator()
+    for item in print_list:
+        result += f'{item}'
+    return result
 
 
 # "****************************************"
@@ -275,7 +326,8 @@ def greeting(*args):
     return 'Hello! Can I help you?'
 
 
-def exiting(*args):
+def exiting(input_nb):
+    save_nb(input_nb)
     return 'Good bye!'
 
 
@@ -284,17 +336,21 @@ def unknown_command(*args):
 
 
 def helping(*args):
-    return """Command format:
-    help, h or ? -> this help;
-    hello -> greeting;
-    add -> add new note record;
-    tag -> add new tag to the note record;
-    find notes -> find notes by Key Word;
-    find by tag -> find note by tag;
-    delete note -> delete note record;
-    edit note -> change an old note to a new one;
-    show all -> show data of all notes;
-    good bye or close or exit or . - exit the program"""
+    return """
+    *********** Service command ***********
+    "help", "?"          --> Commands list
+    "close", "exit", "." --> Exit from AddressBook
+    *********** Add/edit command **********
+    add --> add new note record
+    tag --> add new tag to the note record
+    edit note --> change an old note to a new one
+    *********** Info command *************
+    find notes --> find notes by Key Word
+    find by tag --> find note by tag
+    show all --> show data of all notes
+    *********** Delete command ***********
+    delete note --> delete note record
+    """
 
 
 COMMANDS = {greeting: ['hello'],
@@ -323,15 +379,13 @@ def command_parser(user_command: str) -> (str, list):
 
 def main():
     input_nb = load_nb(file_name)
+    print(helping())
     while True:
         user_command = input("Enter command:>>> ")
         if user_command == "exit":
             return f"Exit"
         command, data = command_parser(user_command)
-        print(command(input_nb, *data))
+        print(command(input_nb))
 
         if command is exiting:
             break
-
-# if __name__ == '__main__':
-#   main()
