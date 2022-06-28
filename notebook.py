@@ -108,14 +108,13 @@ class Record:
             all_tags.append(str(i))
 
         if tag_value in all_tags:
-            print("The note you are looking for looks like:")
-            print(self.note[0]["note"])
+            print('-'*50, "The note you are looking for looks like:", sep='\n')
+            print(self.note[0]["note"], '-'*50, sep='\n')
             return self.note[0]["note"]
 
     def delete_note(self, tag_value):
         if tag_value in self.note[0]["tag"]:
             print(f"The note with a tag {tag_value} will be deleted from the notebook")
-            # self.phone.remove(phone_number_to_delete)
 
     def __str__(self) -> str:
         v_note = ''
@@ -263,6 +262,7 @@ def find_note_by_tag(input_nb):
 
     if all(v is None for v in notes_with_tag):
         print(f"Cannot find a note using the tag: '{input_tag}'")
+    return ''
 
 
 @InputError
@@ -272,10 +272,10 @@ def delete_note(input_nb):
     input_title = input("Specify the title of the note that should be deleted: ")
     if input_title in all_nb_titles:
         input_nb.delete_record(input_nb[input_title])
-        print(f"The note with a title '{input_title}' is deleted")
         save_nb(input_nb)
+        return f"The note with a title '{input_title}' is deleted"
     else:
-        print(f"No note with a title '{input_title}' was found")
+        return f"No note with a title '{input_title}' was found"
 
 
 @InputError
@@ -297,15 +297,16 @@ def edit_note(input_nb):
     save_nb(input_nb)
 
 
-# @InputError
-# def show_all(input_nb):
-#     if not input_nb:
-#         return 'Note book is empty'
-#
-#     print('{:<20} : {:<15} : {:<15}'.format("Title", 'Note', 'Tags'))
-#     print("-------------------------------------------------")
-#     for rec, value in input_nb.items():
-#         print('{:<20}  {:<15}  {:<15}'.format(rec, value.note[0]["note"], str(value.note[0]["tag"])))
+@InputError
+def clean_all(input_nb):
+    yes_no = input('Are you sure you want to delete all notes? (y/n) ')
+    if yes_no == 'y':
+        input_nb.clear()
+        save_nb(input_nb)
+        return 'Notebook is empty'
+    else:
+        return 'Removal canceled'
+
 
 @InputError
 def show_all(input_nb):
@@ -350,6 +351,7 @@ def helping(*args):
     show all --> show data of all notes
     *********** Delete command ***********
     delete note --> delete note record
+    clean all --> delete all notes
     """
 
 
@@ -362,11 +364,11 @@ COMMANDS = {greeting: ['hello'],
             delete_note: ['delete note'],
             edit_note: ['edit note'],
             show_all: ['show'],
+            clean_all: ['clear', 'clean', 'clean all'],
             exiting: ['goodbye', 'close', 'exit', '.']
             }
 
 
-# parser of the input commands
 def command_parser(user_command: str) -> (str, list):
     for key, list_value in COMMANDS.items():
         for value in list_value:
