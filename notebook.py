@@ -5,276 +5,282 @@ import re
 
 class Field:
 
-  def __init__(self, value):
-    self.value = value
+    def __init__(self, value):
+        self.value = value
 
-  def __str__(self):
-    return self.value
+    def __str__(self):
+        return self.value
 
-  def __repr__(self):
-    return self.value
+    def __repr__(self):
+        return self.value
 
-  @property
-  def value(self):
-    return self.__value
+    @property
+    def value(self):
+        return self.__value
 
-  @value.setter
-  def value(self, value):
-    self.__value = value
+    @value.setter
+    def value(self, value):
+        self.__value = value
 
 
 class Title(Field):
-  pass
-  # @property
-  # def value(self) -> str:
-  #   return self.__value
-  #
-  # @value.setter
-  # def value(self, value: str):
-  #   max_title_length = 20
-  #
-  #   if len(value) > max_title_length:
-  #     raise AttributeError(f"The note title is too long, be sure it is less then {max_title_length} symbols")
-  #   elif value[0].lower() in Translator.CYRILLIC_SYMBOLS:
-  #     print("All cyrillic letters will be translated to latin:")
-  #     self.__value = Translator(value).translate_text()
+    pass
+    # @property
+    # def value(self) -> str:
+    #   return self.__value
+    #
+    # @value.setter
+    # def value(self, value: str):
+    #   max_title_length = 20
+    #
+    #   if len(value) > max_title_length:
+    #     raise AttributeError(f"The note title is too long, be sure it is less then {max_title_length} symbols")
+    #   elif value[0].lower() in Translator.CYRILLIC_SYMBOLS:
+    #     print("All cyrillic letters will be translated to latin:")
+    #     self.__value = Translator(value).translate_text()
 
 
 class Note(Field):
 
-  @property
-  def value(self) -> str:
-    return self.__value
+    @property
+    def value(self) -> str:
+        return self.__value
 
-  @value.setter
-  def value(self, value: str):
-    self.__value = Translator(value).translate_text()
-
+    @value.setter
+    def value(self, value: str):
+        self.__value = Translator(value).translate_text()
 
 
 class Tag(Field):
 
-  @property
-  def value(self) -> str:
-    return self.__value
+    @property
+    def value(self) -> str:
+        return self.__value
 
-  @value.setter
-  def value(self, value: str):
-    self.__value = Translator(value).translate_text()
+    @value.setter
+    def value(self, value: str):
+        self.__value = Translator(value).translate_text()
 
 
 class Translator:
-  CYRILLIC_SYMBOLS = "абвгдеёжзийклмнопрстуфхцчшщъыьэюяєіїґ"
+    CYRILLIC_SYMBOLS = "абвгдеёжзийклмнопрстуфхцчшщъыьэюяєіїґ"
 
-  def __init__(self, text):
-    self.text = text
+    def __init__(self, text):
+        self.text = text
 
-  def translate_text(self):
-    TRANSLATION = (
-      "a", "b", "v", "g", "d", "e", "e", "j", "z", "i", "j", "k", "l", "m", "n", "o", "p", "r", "s", "t", "u",
-      "f", "h", "ts", "ch", "sh", "sch", "", "y", "", "e", "yu", "u", "ja", "je", "ji", "g")
-    TRANS = {}
+    def translate_text(self):
+        TRANSLATION = (
+            "a", "b", "v", "g", "d", "e", "e", "j", "z", "i", "j", "k", "l", "m", "n", "o", "p", "r", "s", "t", "u",
+            "f", "h", "ts", "ch", "sh", "sch", "", "y", "", "e", "yu", "u", "ja", "je", "ji", "g")
+        TRANS = {}
 
-    CYRILLIC = tuple([char for char in self.CYRILLIC_SYMBOLS])
+        CYRILLIC = tuple([char for char in self.CYRILLIC_SYMBOLS])
 
-    for cyrillic, latin in zip(CYRILLIC, TRANSLATION):
-      TRANS[ord(cyrillic)] = latin
-      TRANS[ord(cyrillic.upper())] = latin.upper()
+        for cyrillic, latin in zip(CYRILLIC, TRANSLATION):
+            TRANS[ord(cyrillic)] = latin
+            TRANS[ord(cyrillic.upper())] = latin.upper()
 
-    return self.text.translate(TRANS)
+        return self.text.translate(TRANS)
 
 
 class Record:
 
-  def __init__(self, title: str, note = None, tag = None):
-    self.title = title
-    if note is None:
-      self.tag = []
-      self.note = [{"note": "", "tag": self.tag}]
-    else:
-      self.tag = [tag]
-      self.note = [{"note": str(note), "tag": self.tag}]
+    def __init__(self, title: str, note=None, tag=None):
+        self.title = title
+        if note is None:
+            self.tag = []
+            self.note = [{"note": "", "tag": self.tag}]
+        else:
+            self.tag = [tag]
+            self.note = [{"note": str(note), "tag": self.tag}]
 
-  def add_note(self, new_note):
-    self.note[0]["note"] += " " + str(new_note)
+    def add_note(self, new_note):
+        self.note[0]["note"] += " " + str(new_note)
 
-  def add_tag(self, new_tag):
-    if new_tag in self.note[0]["tag"]:
-      print(f"The tag: {new_tag} is already used")
-    else:
-      self.note[0]["tag"].append(new_tag)
+    def add_tag(self, new_tag):
+        if new_tag in self.note[0]["tag"]:
+            print(f"The tag: {new_tag} is already used")
+        else:
+            self.note[0]["tag"].append(new_tag)
 
-  def find_note(self, tag_value):
-    all_tags = []
-    for i in self.note[0]["tag"]:
-      all_tags.append(str(i))
+    def find_note(self, tag_value):
+        all_tags = []
+        for i in self.note[0]["tag"]:
+            all_tags.append(str(i))
 
-    if tag_value in all_tags:
-      print("The note you are looking for looks like:")
-      print(self.note[0]["note"])
-      return self.note[0]["note"]
+        if tag_value in all_tags:
+            print("The note you are looking for looks like:")
+            print(self.note[0]["note"])
+            return self.note[0]["note"]
 
-  def delete_note(self, tag_value):
-    if tag_value in self.note[0]["tag"]:
-      print(f"The note with a tag {tag_value} will be deleted from the notebook")
-      self.phone.remove(phone_number_to_delete)
+    def delete_note(self, tag_value):
+        if tag_value in self.note[0]["tag"]:
+            print(f"The note with a tag {tag_value} will be deleted from the notebook")
+            self.phone.remove(phone_number_to_delete)
 
 
 class NoteBook(UserDict):
 
-  def add_record(self, record: list):
-    self.data[record.title] = record
+    def add_record(self, record: list):
+        self.data[record.title] = record
 
-  def delete_record(self, record):
-    del self.data[record.title]
+    def delete_record(self, record):
+        del self.data[record.title]
 
 
-#"****************************************"
-#"************ get NoteBook  *************"
-#"****************************************"
+# "****************************************"
+# "************ get NoteBook  *************"
+# "****************************************"
 
 file_name = 'NoteBook.bin'
+
+
 def save_nb(nb, file_name=file_name):
-  with open(file_name, "wb") as fh:
-    pickle.dump(nb, fh)
+    with open(file_name, "wb") as fh:
+        pickle.dump(nb, fh)
+
 
 def load_nb(file_name):
-  try:
-    with open(file_name, "rb") as fh:
-      return pickle.load(fh)
-  except (EOFError and FileNotFoundError):
-    print(f"There is no such file: {file_name}")
+    try:
+        with open(file_name, "rb") as fh:
+            unpacked = pickle.load(fh)
+            return unpacked
+    except EOFError:
+        unpacked = NoteBook()
+        return unpacked
 
-#nb = NoteBook()
-input_nb = load_nb(file_name)
+
+# nb = NoteBook()
+# input_nb = load_nb(file_name)
 
 
-#"****************************************"
-#"******** functional commands  **********"
-#"****************************************"
+# "****************************************"
+# "******** functional commands  **********"
+# "****************************************"
 
 
 def add(input_nb):
-  print("You are going to create a new record in your note book.")
-  input_title = input("Please add the title of your note:")
-  while input_title == "":
-    print("You must give a note title, other way  you cannot create a note record!")
+    print("You are going to create a new record in your note book.")
     input_title = input("Please add the title of your note:")
+    while input_title == "":
+        print("You must give a note title, other way  you cannot create a note record!")
+        input_title = input("Please add the title of your note:")
 
-  input_note = input("What is your note:")
-  input_tag = input("Specify a tag of your note:")
-  if input_note and input_tag:
-    title = Title(input_title)
-    input_record = Record(str(title), Note(input_note), Tag(input_tag))
-  elif input_note and input_tag == "":
-    input_record = Record(Title(input_title), Note(input_note))
-  else:
-    input_record = Record(Title(input_title))
+    input_note = input("What is your note:")
+    input_tag = input("Specify a tag of your note:")
+    if input_note and input_tag:
+        title = Title(input_title)
+        input_record = Record(str(title), Note(input_note), Tag(input_tag))
+    elif input_note and input_tag == "":
+        input_record = Record(Title(input_title), Note(input_note))
+    else:
+        input_record = Record(Title(input_title))
 
-  input_nb.add_record(input_record)
-  save_nb(input_nb)
+    input_nb.add_record(input_record)
+    save_nb(input_nb)
 
 
 def tag(input_nb):
-  all_nb_titles = list(input_nb.keys())
-  print(f"Here is all titles in your notebook:\n{all_nb_titles}")
-  input_title = input("Specify the title of the note, where you want to add a new tag:")
-  if input_title in all_nb_titles:
-    input_tag = input("Which tag do you want to add:")
-    input_nb[input_title].add_tag(input_tag)
-  else:
-    print(f"No note with a title '{input_title}' was found")
+    all_nb_titles = list(input_nb.keys())
+    print(f"Here is all titles in your notebook:\n{all_nb_titles}")
+    input_title = input("Specify the title of the note, where you want to add a new tag:")
+    if input_title in all_nb_titles:
+        input_tag = input("Which tag do you want to add:")
+        input_nb[input_title].add_tag(input_tag)
+    else:
+        print(f"No note with a title '{input_title}' was found")
 
-  save_nb(input_nb)
+    save_nb(input_nb)
 
 
 def find_records(input_nb):
-  output_nb = []
-  articles_dict_with_key = []
-  count_match = 0
-  letter_case = input("Give a key word to find a match in the notes: ")
-  for tup in list(input_nb.items()):
-    output_nb.append(dict([tup]))
-    nb_dict = dict([tup])
-    for key, value in nb_dict.items():
-      words_in_dict = [key.lower(), value.note[0]["note"].lower()]
-      for i in value.note[0]["tag"]:
-        words_in_dict.append(str(i))
+    output_nb = []
+    articles_dict_with_key = []
+    count_match = 0
+    letter_case = input("Give a key word to find a match in the notes: ")
+    for tup in list(input_nb.items()):
+        output_nb.append(dict([tup]))
+        nb_dict = dict([tup])
+        for key, value in nb_dict.items():
+            words_in_dict = [key.lower(), value.note[0]["note"].lower()]
+            for i in value.note[0]["tag"]:
+                words_in_dict.append(str(i))
 
-      if any(letter_case.lower() in s for s in words_in_dict):
-        articles_dict_with_key.append(tup)
-        count_match += 1
-  print(f"The given key words '{letter_case}' were found in {count_match} note books")
-  print(f"The matches are : {articles_dict_with_key}")
+            if any(letter_case.lower() in s for s in words_in_dict):
+                articles_dict_with_key.append(tup)
+                count_match += 1
+    print(f"The given key words '{letter_case}' were found in {count_match} note books")
+    print(f"The matches are : {articles_dict_with_key}")
 
 
 def find_note_by_tag(input_nb):
-  print("List of all tags:")
-  for rec, value in input_nb.items():
-    print('{:<15}  {:<10}  {:<10}'.format(rec, '-> tags:', str(value.note[0]["tag"])))
+    print("List of all tags:")
+    for rec, value in input_nb.items():
+        print('{:<15}  {:<10}  {:<10}'.format(rec, '-> tags:', str(value.note[0]["tag"])))
 
-  input_tag = input("Give a tag to find a corresponding notes: ")
-  notes_with_tag = []
-  for rec, value in input_nb.items():
-    notes_with_tag.append(value.find_note(input_tag))
+    input_tag = input("Give a tag to find a corresponding notes: ")
+    notes_with_tag = []
+    for rec, value in input_nb.items():
+        notes_with_tag.append(value.find_note(input_tag))
 
-  if all(v is None for v in notes_with_tag):
-    print(f"Cannot find a note using the tag: '{input_tag}'")
+    if all(v is None for v in notes_with_tag):
+        print(f"Cannot find a note using the tag: '{input_tag}'")
+
 
 def delete_note(input_nb):
-  all_nb_titles = list(input_nb.keys())
-  print(f"Here is all titles in your notebook:\n{all_nb_titles}")
-  input_title = input("Specify the title of the note that should be deleted: ")
-  if input_title in all_nb_titles:
-    input_nb.delete_record(input_nb[input_title])
-    print(f"The note with a title '{input_title}' is deleted")
-    save_nb(input_nb)
-  else:
-    print(f"No note with a title '{input_title}' was found")
+    all_nb_titles = list(input_nb.keys())
+    print(f"Here is all titles in your notebook:\n{all_nb_titles}")
+    input_title = input("Specify the title of the note that should be deleted: ")
+    if input_title in all_nb_titles:
+        input_nb.delete_record(input_nb[input_title])
+        print(f"The note with a title '{input_title}' is deleted")
+        save_nb(input_nb)
+    else:
+        print(f"No note with a title '{input_title}' was found")
 
 
 def edit_note(input_nb):
-  all_nb_titles = list(input_nb.keys())
-  print(f"Here is all titles in your notebook:\n{all_nb_titles}")
-  input_title = input("Specify the title of the note that should be edited: ")
-  if input_title in all_nb_titles:
-    input_note = input("What is a new note: ")
-    for key, value in input_nb.items():
-      if key == input_title:
-        print(f"Note: '{value.note[0]['note']}' is changed to ")
-        value.note[0]['note'] = input_note
-        print(f"'{value.note[0]['note']}'.")
-        save_nb(input_nb)
-  else:
-    print(f"No note with a title '{input_title}' was found")
+    all_nb_titles = list(input_nb.keys())
+    print(f"Here is all titles in your notebook:\n{all_nb_titles}")
+    input_title = input("Specify the title of the note that should be edited: ")
+    if input_title in all_nb_titles:
+        input_note = input("What is a new note: ")
+        for key, value in input_nb.items():
+            if key == input_title:
+                print(f"Note: '{value.note[0]['note']}' is changed to ")
+                value.note[0]['note'] = input_note
+                print(f"'{value.note[0]['note']}'.")
+                save_nb(input_nb)
+    else:
+        print(f"No note with a title '{input_title}' was found")
 
-  save_nb(input_nb)
+    save_nb(input_nb)
+
 
 def show_all(input_nb, *args):
+    if not input_nb:
+        return 'Note book is empty'
 
-  if not input_nb:
-    return 'Note book is empty'
-
-  print('{:<20} : {:<15} : {:<15}'.format("Title", 'Note', 'Tags'))
-  print("-------------------------------------------------")
-  for rec, value in input_nb.items():
-    print('{:<20}  {:<15}  {:<15}'.format(rec, value.note[0]["note"], str(value.note[0]["tag"])))
+    print('{:<20} : {:<15} : {:<15}'.format("Title", 'Note', 'Tags'))
+    print("-------------------------------------------------")
+    for rec, value in input_nb.items():
+        print('{:<20}  {:<15}  {:<15}'.format(rec, value.note[0]["note"], str(value.note[0]["tag"])))
 
 
-#"****************************************"
-#"********** helping commands  ***********"
-#"****************************************"
+# "****************************************"
+# "********** helping commands  ***********"
+# "****************************************"
 
 def greeting(*args):
-  return 'Hello! Can I help you?'
+    return 'Hello! Can I help you?'
 
 
 def exiting(*args):
-  return 'Good bye!'
+    return 'Good bye!'
 
 
 def unknown_command(*args):
-  return 'Unknown command! Enter again!'
+    return 'Unknown command! Enter again!'
 
 
 def helping(*args):
@@ -300,7 +306,7 @@ COMMANDS = {greeting: ['hello'],
             delete_note: ['delete note'],
             edit_note: ['edit note'],
             show_all: ['show'],
-            exiting: ['goodbye', 'close', 'exit', '.'],
+            exiting: ['goodbye', 'close', 'exit', '.']
             }
 
 
@@ -316,13 +322,13 @@ def command_parser(user_command: str) -> (str, list):
 
 
 def main():
-    contacts = load_nb(file_name)
+    input_nb = load_nb(file_name)
     while True:
         user_command = input("Enter command:>>> ")
         if user_command == "exit":
             return f"Exit"
         command, data = command_parser(user_command)
-        print(command(contacts, *data))
+        print(command(input_nb, *data))
 
         if command is exiting:
             break
