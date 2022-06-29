@@ -174,17 +174,17 @@ class InputError:
 file_name = 'NoteBook.bin'
 
 
-def save_nb(nb, file_name=file_name):
+def save_nb(nb):
     with open(file_name, "wb") as fh:
         pickle.dump(nb, fh)
 
 
-def load_nb(file_name):
+def load_nb():
     try:
         with open(file_name, "rb") as fh:
             unpacked = pickle.load(fh)
             return unpacked
-    except EOFError:
+    except (EOFError, FileNotFoundError):
         unpacked = NoteBook()
         return unpacked
 
@@ -403,7 +403,7 @@ def command_parser(user_command: str) -> (str, list):
 
 
 def main():
-    input_nb = load_nb(file_name)
+    input_nb = load_nb()
     print(helping())
     while True:
         user_command = input("Enter command:>>> ")

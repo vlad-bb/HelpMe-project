@@ -345,18 +345,19 @@ def unknown_command(*args):
 file_name = 'AddressBook.bin'
 
 
-def reading_db(file_name):
-    with open(file_name, "rb") as fh:
-        try:
-            unpacked = pickle.load(fh)
-        except EOFError:
-            unpacked = AddressBook()
-        return unpacked
-
-
-def writing_db(contacts):
+def writing_db(ab):
     with open(file_name, "wb") as fh:
-        pickle.dump(contacts, fh)
+        pickle.dump(ab, fh)
+
+
+def reading_db():
+    try:
+        with open(file_name, "rb") as fh:
+            unpacked = pickle.load(fh)
+            return unpacked
+    except (EOFError, FileNotFoundError):
+        unpacked = AddressBook()
+        return unpacked
 
 
 COMMANDS = {greeting: ['hello'],
@@ -388,7 +389,7 @@ def command_parser(user_command: str) -> (str, list):
 
 
 def main():
-    contacts = reading_db(file_name)
+    contacts = reading_db()
     print(info())
     while True:
         user_command = input('Enter command:>>> ')
