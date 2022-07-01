@@ -1,6 +1,6 @@
 from app.adressbook import main as ab_main
 from app.cleanfolder import main as clean_main
-from notebook import main as note_book
+from app.notebook import main as note_book
 
 
 # main функція проекту

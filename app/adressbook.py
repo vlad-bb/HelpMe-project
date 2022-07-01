@@ -109,7 +109,6 @@ class Record:
                f' Email:    {self.email}\n' \
                f' Address:  {self.address}'
 
-
     def add_phone(self, phone: Phone) -> None:
         self.phone_list.append(phone)
 

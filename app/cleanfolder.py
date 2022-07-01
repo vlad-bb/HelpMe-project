@@ -1,6 +1,5 @@
-import shutil
-from file_parser import *
-from normalize import normalize
+from app.file_parser import *
+from app.normalize import normalize
 
 
 def goodbye(*args):
