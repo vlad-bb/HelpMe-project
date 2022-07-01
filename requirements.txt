@@ -1,2 +1,1 @@
-pip~=22.0.4
-phonenumbers~=8.12.50
+phonenumbers==8.12.50

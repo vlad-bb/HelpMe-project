@@ -171,7 +171,7 @@ class InputError:
 # "************ get NoteBook  *************"
 # "****************************************"
 
-file_name = 'NoteBook.bin'
+file_name = 'app.NoteBook.bin'
 
 
 def save_nb(nb):
@@ -363,7 +363,7 @@ def helping(*args):
     return """
     *********** Service command ***********
     "help", "?"          --> Commands list
-    "close", "exit", "." --> Exit from AddressBook
+    "close", "exit", "." --> Exit from NoteBook
     *********** Add/edit command **********
     add --> add new note record
     tag --> add new tag to the note record

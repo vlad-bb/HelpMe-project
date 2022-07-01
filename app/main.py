@@ -1,6 +1,6 @@
-from adressbook import main as amain
-from cleanfolder import main as clean_main
-from notebook import main as note_book
+from app.adressbook import main as ab_main
+from app.cleanfolder import main as clean_main
+from app.notebook import main as note_book
 
 
 # main функція проекту
@@ -14,7 +14,7 @@ def main():
         user_command = input('Press menu button: >>> ')
         if user_command == '1':
             print('*'*60, 'AddressBook Manager', '*'*60, sep='\n')
-            result = amain()
+            result = ab_main()
             if result == 'Exit':
                 continue
 
