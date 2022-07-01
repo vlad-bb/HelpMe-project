@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="helpme-assistance",
-    version="0.2.8",
+    version="0.2.9",
     author="ITeams",
     author_email="vlad_bb@icloud.com, nataliia.kovalchuk90@gmail.com, saifulianna.it@gmail.com",
     description="The project 'HelpMe' - its your personal CLI assistant. AddressBook, NoteBook, CleanFolder - in one "

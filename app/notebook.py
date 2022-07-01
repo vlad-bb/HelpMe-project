@@ -171,7 +171,7 @@ class InputError:
 # "************ get NoteBook  *************"
 # "****************************************"
 
-file_name = 'app/NoteBook.bin'
+file_name = 'app.NoteBook.bin'
 
 
 def save_nb(nb):
