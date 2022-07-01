@@ -342,7 +342,7 @@ def unknown_command(*args):
     return 'Unknown command! Enter again!'
 
 
-file_name = 'AddressBook.bin'
+file_name = 'app/AddressBook.bin'
 
 
 def writing_db(ab):
