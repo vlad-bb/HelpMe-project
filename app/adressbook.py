@@ -1,5 +1,4 @@
 import datetime
-import json
 import pickle
 from collections import UserDict
 from datetime import date
@@ -172,53 +171,6 @@ class InputError:
             return 'Error! Data is incorrect!'
         except AttributeError:
             return "Enter correct the date of birth (dd.mm.yyyy) for this user"
-
-
-class AbstractOutput(ABC):
-    def __init__(self, data):
-        self.data = data
-
-    @abstractmethod
-    def output(self):
-        pass
-
-
-class CLIOutput(AbstractOutput):
-
-    def output(self):
-        return self.data
-
-
-class WebOutput(AbstractOutput):
-    file_name = 'request.json'
-
-    def output(self):
-        with open(self.file_name, 'w') as file:
-            json.dump(self.data, file, ensure_ascii=False)
-
-
-class Connection:
-    def __init__(self):
-        pass
-
-
-connection = None
-
-
-def separator(func):
-    def wrapper(*args, **kwargs):
-        data = func(*args, **kwargs)
-        if connection:
-            WebOutput(data).output()
-            return 'succesfull'
-        elif not connection:
-            result = CLIOutput(data).output()
-            return result
-        return wrapper
-
-
-
-
 
 
 def greeting(*args):
