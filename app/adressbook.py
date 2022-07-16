@@ -1,12 +1,14 @@
 import datetime
+import json
 import pickle
 from collections import UserDict
 from datetime import date
 import re
 import phonenumbers
+from abc import ABC, abstractmethod
 
 
-class Field:
+class Field(ABC):
     def __init__(self, value: str) -> None:
         self.__value = None
         self.value = value
@@ -19,6 +21,10 @@ class Field:
 
     def __eq__(self, other) -> bool:
         return self.value == other.value
+
+    @abstractmethod
+    def value(self):
+        ...
 
 
 class Name(Field):
@@ -95,7 +101,9 @@ class Email(Field):
 
 
 class Record:
-    def __init__(self, name: Name, phones=[], birthday=None, email=None, address=None) -> None:
+    def __init__(self, name: Name, phones=None, birthday=None, email=None, address=None) -> None:
+        if phones is None:
+            phones = []
         self.name = name
         self.phone_list = phones
         self.birthday = birthday
@@ -164,6 +172,53 @@ class InputError:
             return 'Error! Data is incorrect!'
         except AttributeError:
             return "Enter correct the date of birth (dd.mm.yyyy) for this user"
+
+
+class AbstractOutput(ABC):
+    def __init__(self, data):
+        self.data = data
+
+    @abstractmethod
+    def output(self):
+        pass
+
+
+class CLIOutput(AbstractOutput):
+
+    def output(self):
+        return self.data
+
+
+class WebOutput(AbstractOutput):
+    file_name = 'request.json'
+
+    def output(self):
+        with open(self.file_name, 'w') as file:
+            json.dump(self.data, file, ensure_ascii=False)
+
+
+class Connection:
+    def __init__(self):
+        pass
+
+
+connection = None
+
+
+def separator(func):
+    def wrapper(*args, **kwargs):
+        data = func(*args, **kwargs)
+        if connection:
+            WebOutput(data).output()
+            return 'succesfull'
+        elif not connection:
+            result = CLIOutput(data).output()
+            return result
+        return wrapper
+
+
+
+
 
 
 def greeting(*args):
